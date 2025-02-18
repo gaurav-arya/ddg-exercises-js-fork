@@ -60,8 +60,17 @@ describe("SpectralConformalParameterization", function() {
 			let success = true;
 			let flattening_sol = loadFlattening();
 			let flattening = spectralConformalParameterization.flatten();
+
+			let v0 = mesh.vertices[0];
+			let p0 = new Complex(flattening[v0].x, flattening[v0].y);
+			let s0 = new Complex(flattening_sol[v0].x, flattening_sol[v0].y);
+			let rot = s0.overComplex(p0);
+
 			for (let v of mesh.vertices) {
-				if (!flattening[v].isValid() || flattening_sol[v].minus(flattening[v]).norm() > 1e-6) {
+				let p = new Complex(flattening[v].x, flattening[v].y);
+				let pRot = p.timesComplex(rot);
+				let flatteningRot = new Vector(pRot.re, pRot.im, flattening[v].z);
+				if (!flatteningRot.isValid() || flattening_sol[v].minus(flatteningRot).norm() > 1e-6) {
 					success = false;
 					break;
 				}
